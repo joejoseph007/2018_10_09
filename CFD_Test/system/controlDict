@@ -1,0 +1,141 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  5.x                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     pimpleDyMFoam;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         10;
+
+deltaT          1e-03;
+
+writeControl    runTime;
+
+writeInterval   0.01;
+
+purgeWrite      0;
+
+writeFormat     binary;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+adjustTimeStep  no;//yes;
+
+maxCo           0.8;
+
+maxDeltaT       0.001;
+
+libs
+(
+    "libsolverFunctionObjects.so"
+);
+
+functions
+{
+    S
+    {
+        type            scalarTransport;
+        writeInterval   outputTime;
+        active          false;
+        field           S;
+        schemesField    S;
+        autoSchemes     false;
+        nCorr           0;
+        resetOnStartUp  false;
+
+        fvOptions
+        {
+            source
+            {
+                type            scalarSemiImplicitSource;
+                active          true;
+
+                scalarSemiImplicitSourceCoeffs
+                {
+                    selectionMode   points;
+                    points
+                    4( 
+                        (-0.8  0.13 0)
+                        (-0.8  0.10 0)
+
+                        (-0.8 -0.20 0)
+                        (-0.8 -0.23 0)
+                    );
+
+                    volumeMode      specific;
+                    injectionRateSuSp
+                    {
+                        S (2 0);
+                    }
+                }
+            }
+        };
+    }
+
+    //#includeFunc residuals
+    forces1
+    {
+        type                forces;
+        libs                ("libforces.so");
+        writeControl        timeStep;
+        writeInterval       1;
+        patches             (VAWT1);
+        rho                 rhoInf;
+        log                 true;
+        rhoInf              1;
+        CofR                (0 0 0);
+    }
+    forces2
+    {
+        type                forces;
+        libs                ("libforces.so");
+        writeControl        timeStep;
+        writeInterval       1;
+        patches             (VAWT2);
+        rho                 rhoInf;
+        log                 true;
+        rhoInf              1;
+        CofR                (0 0 0);
+    }
+    forces3
+    {
+        type                forces;
+        libs                ("libforces.so");
+        writeControl        timeStep;
+        writeInterval       1;
+        patches             (VAWT3);
+        rho                 rhoInf;
+        log                 true;
+        rhoInf              1;
+        CofR                (0 0 0);
+    }
+
+}
+
+// ************************************************************************* //

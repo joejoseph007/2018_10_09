@@ -1,0 +1,113 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  5                                     |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      dynamicMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dynamicFvMesh      dynamicMotionSolverFvMesh;
+
+motionSolverLibs ("libsixDoFRigidBodyMotion.so");
+
+solver            sixDoFRigidBodyMotion;
+
+sixDoFRigidBodyMotionCoeffs
+{
+   //cellZone         (innerAMI);
+   patches         (VAWT1);
+   patches         (VAWT2);
+   patches         (VAWT3);
+   patches         (SHAFT);
+   innerDistance   0.5;
+   outerDistance   0.7;
+
+    rho             rhoInf;
+    rhoInf          1.225;
+
+
+    mass        0.000002807465869689794;
+
+    momentOfInertia (1e-10 1e-10 0.00000025687192208479235);
+    centreOfMass (0 0 0);
+
+    orientation
+    (
+        1 0 0
+        0 1 0
+        0 0 1
+    );
+    
+    velocity        (0 0 0);
+    acceleration    (0 0 0);
+
+    angularMomentum (0 0 0);
+
+    torque          (0 0 0);
+
+    report          on;
+
+    solver
+    {
+        type Newmark;
+    }
+
+    constraints
+    {
+        zAxis
+        {
+            sixDoFRigidBodyMotionConstraint axis;
+            axis (0 0 1);
+        }
+
+        fixedPt
+        {
+            sixDoFRigidBodyMotionConstraint point;
+            centreOfRotation (0 0 0);
+        }
+    }
+
+    
+    restraints
+    {
+        //- Some dumping functions
+        /*translationDamper
+        {
+                //- Nms/rad
+                //  Acts against motion as friction
+                sixDoFRigidBodyMotionRestraint  sphericalAngularDamper;
+                coeff 0.05;
+        }
+        */
+    }
+}
+
+
+
+/*
+solver solidBody;
+
+solidBodyCoeffs
+{
+    cellZone        innerAMI;
+
+    solidBodyMotionFunction  rotatingMotion;
+    rotatingMotionCoeffs
+    {
+        origin        (0 0 0);
+        axis          (0 0 1);
+        omega         31.41892654; // rad/s
+    }
+}
+*/
+
+// ************************************************************************* //
